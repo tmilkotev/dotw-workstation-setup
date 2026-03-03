@@ -1,0 +1,19 @@
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Temp / misc
+*.log
+*.tmp
+*.bak
+
+# PowerShell transcript temp
+*.txt
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS junk
+Thumbs.db
+.DS_Store

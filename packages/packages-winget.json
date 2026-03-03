@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "profiles": {
+    "base": [
+      "Git.Git",
+      "Microsoft.PowerShell",
+      "Microsoft.WindowsTerminal",
+      "Microsoft.VisualStudioCode",
+      "Notepad++.Notepad++",
+      "Google.Chrome",
+      "Brave.Brave",
+      "KeePassXCTeam.KeePassXC",
+      "RARLab.WinRAR",
+      "WiresharkFoundation.Wireshark"
+    ],
+    "development": [
+      "Python.Python.3.12",
+      "OpenJS.NodeJS.LTS",
+      "Docker.DockerDesktop",
+      "Microsoft.WSL"
+    ],
+    "virtualization": [
+      "Oracle.VirtualBox",
+      "Hashicorp.Vagrant"
+    ],
+    "infrastructure": [
+      "Hashicorp.Terraform",
+      "Amazon.AWSCLI",
+      "EclipseAdoptium.Temurin.21.JDK"
+    ],
+    "wsl": [
+      "9P5RWLM70SN9"
+    ]
+  },
+  "defaultProfile": [
+    "base",
+    "development",
+    "virtualization",
+    "infrastructure"
+  ]
+}

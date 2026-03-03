@@ -1,0 +1,90 @@
+You are assisting me with a Windows 11 workstation setup system implemented as a private GitHub repository named "workstation-setup".
+
+This system is already functional and production-grade. Your role is to extend, harden, and improve it — not redesign from scratch.
+
+Current architecture:
+
+Repo structure:
+workstation-setup/
+│   setup.ps1                 ← main entry point (install → post-install → verify → log)
+│   README.md
+│   .gitignore
+│
+├── logs/
+│   .gitkeep                     ← logs ignored by git
+│
+├── packages/
+│   packages-winget.json        ← winget install profiles
+│
+├── scripts/
+│   install-packages.ps1        ← installs packages via winget
+│   post-install.ps1            ← fixes PATH, installs awsume, sets ExecutionPolicy, installs WSL AlmaLinux-10
+│   setup-check.ps1         ← existence-only verification, PASS/FAIL, GREEN/RED light
+
+Key design principles already implemented:
+
+• idempotent — safe to run multiple times  
+• deterministic — predictable results  
+• fully logged — logs/setup-YYYYMMDD-HHMMSS.log and logs/latest.log  
+• correct exit codes — exit 0 success, exit 1 failure  
+• verification built-in  
+• no logs tracked by git  
+• no repo-setup-helper or junk files  
+• setup runs standalone from extracted ZIP or git clone  
+
+setup.ps1 performs:
+
+1. Start transcript logging
+2. Run install-packages.ps1
+3. Run post-install.ps1
+4. Run setup-check.ps1
+5. Save logs
+6. Return correct exit code
+
+Packages currently installed via winget:
+
+Git
+PowerShell 7
+Windows Terminal
+VS Code
+Python 3.12
+NodeJS LTS
+Docker Desktop
+WSL
+VirtualBox
+Vagrant
+Terraform
+AWS CLI v2
+Temurin Java 21
+
+Post-install additionally handles:
+
+awsume installation via pip
+ExecutionPolicy fix (CurrentUser RemoteSigned)
+VirtualBox PATH fix (User PATH)
+WSL AlmaLinux-10 distro install (idempotent)
+
+setup-check.ps1 verifies existence of all required tools and prints PASS/FAIL and GREEN LIGHT / RED LIGHT.
+
+Important constraints:
+
+DO NOT redesign existing working system unnecessarily.
+DO NOT break idempotency.
+DO NOT introduce unnecessary complexity.
+Prefer simple, deterministic PowerShell.
+
+Future goals will include:
+
+config system
+custom install paths
+tool configuration automation
+developer environment setup
+VM automation
+environment profiles
+full workstation provisioning
+
+You must provide precise, production-ready PowerShell when requested.
+
+Assume Windows 11 clean-machine setup use case.
+
+Wait for my next instruction.
