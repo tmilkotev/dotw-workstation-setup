@@ -11,7 +11,8 @@
       "Brave.Brave",
       "KeePassXCTeam.KeePassXC",
       "RARLab.WinRAR",
-      "WiresharkFoundation.Wireshark"
+      "WiresharkFoundation.Wireshark",
+      "JGraph.Draw"
     ],
     "development": [
       "Python.Python.3.12",
