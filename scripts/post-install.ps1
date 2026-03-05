@@ -1,7 +1,6 @@
 # scripts/post-install.ps1
 # Post-install steps that winget doesn't fully complete:
 # - Initialize WSL distro (AlmaLinux-10)
-# - Install Ansible inside WSL (AlmaLinux-10) when available
 # - Install Python packages (awsume)
 # - Fix PowerShell ExecutionPolicy for pip script shims
 # - Optional: start Docker Desktop to trigger first-run setup
@@ -21,21 +20,6 @@ function Get-WSLDistros {
   $out = (& wsl --list --quiet 2>$null)
   if (-not $out) { return @() }
   @($out | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-}
-
-function Test-WSLDistroRunnable([string]$DistroName) {
-  try {
-    # If this works, the distro is initialized enough to execute commands.
-    & wsl -d $DistroName -e sh -lc "echo ok" 2>$null | Out-Null
-    return $true
-  } catch {
-    return $false
-  }
-}
-
-function Invoke-WSL([string]$DistroName, [string]$Command) {
-  # Use sh for maximum compatibility.
-  & wsl -d $DistroName -e sh -lc $Command
 }
 
 # --- WSL: install AlmaLinux-10 (idempotent) ---
@@ -58,29 +42,8 @@ if (Get-Command wsl -ErrorAction SilentlyContinue) {
 
   # Refresh list after possible install trigger
   $existing = Get-WSLDistros
-
-  # --- WSL: install Ansible inside AlmaLinux-10 (dnf) ---
-  if ($existing -contains $targetDistro) {
-    if (Test-WSLDistroRunnable $targetDistro) {
-      Write-Info "Installing/Upgrading Ansible inside WSL distro: $targetDistro"
-
-      # AlmaLinux uses dnf. ansible-core is commonly available; fall back to ansible if needed.
-      try {
-        Invoke-WSL $targetDistro "set -e; sudo dnf -y makecache; (sudo dnf -y install ansible-core || sudo dnf -y install ansible); ansible --version || ansible-playbook --version || true"
-        Write-Info "Ansible install step completed inside $targetDistro."
-      } catch {
-        Write-Warn "Ansible install inside WSL failed (distro may still need first-launch setup or sudo password). Error: $($_.Exception.Message)"
-      }
-    } else {
-      Write-Warn "WSL distro '$targetDistro' exists but isn't runnable yet (likely first-launch setup / reboot pending). Skipping Ansible for now."
-      Write-Warn "After first launch of '$targetDistro', re-run this script to install Ansible."
-    }
-  } else {
-    Write-Warn "WSL distro '$targetDistro' not present. Skipping Ansible-in-WSL."
-  }
-
 } else {
-  Write-Warn "wsl command not found. Skipping WSL + Ansible."
+  Write-Warn "wsl command not found. Skipping WSL."
 }
 
 # --- AWSume: pip install ---
