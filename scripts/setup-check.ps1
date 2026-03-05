@@ -1,9 +1,8 @@
 # scripts/setup-check.ps1
 # Existence-only verification. Prints PASS/FAIL with colors and exits non-zero on failures.
-# Scales better as your stack grows. Also checks Ansible inside WSL distro.
+# Scales better as your stack grows.
 
 param(
-  [string]$ExpectedWslDistro = "AlmaLinux-10",
   [switch]$Strict  # if set, treat "optional" items as required
 )
 
@@ -27,26 +26,11 @@ function Check-Cmd([string]$name, [string]$hint = "", [switch]$Optional) {
 
   if ($Optional -and -not $Strict) {
     if ($hint) { Warn "$name missing (optional). $hint" } else { Warn "$name missing (optional)." }
-    return $true  # doesn't count as failure in non-strict mode
+    return $true
   }
 
   if ($hint) { Fail "$name missing. $hint" } else { Fail "$name missing." }
   return $false
-}
-
-function Get-WSLDistros {
-  $out = (& wsl --list --quiet 2>$null)
-  if (-not $out) { return @() }
-  @($out | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-}
-
-function Test-WSLCommand([string]$Distro, [string]$Cmd) {
-  try {
-    & wsl -d $Distro -e sh -lc $Cmd 2>$null | Out-Null
-    return $true
-  } catch {
-    return $false
-  }
 }
 
 function Run-Group([string]$Title, $Items, [ref]$Failures) {
@@ -110,34 +94,6 @@ Run-Group "INFRASTRUCTURE"  $infrastructure  ([ref]$failures)
 Run-Group "VIRTUALIZATION"  $virtualization  ([ref]$failures)
 Run-Group "CONTAINERS"      $containers      ([ref]$failures)
 Run-Group "NETWORK/SECURITY"$network_security([ref]$failures)
-
-# --- WSL + Ansible (special) ---
-Info "`n=== WSL ==="
-if (Has-Cmd "wsl") {
-  Pass "wsl found"
-  try {
-    $distros = Get-WSLDistros
-    if ($distros -contains $ExpectedWslDistro) {
-      Pass "WSL distro present: $ExpectedWslDistro"
-
-      if (Test-WSLCommand $ExpectedWslDistro "command -v ansible >/dev/null 2>&1") {
-        Pass "ansible found inside WSL distro: $ExpectedWslDistro"
-      } else {
-        Fail "ansible missing inside WSL distro: $ExpectedWslDistro (run post-install to install via dnf)"
-        $failures++
-      }
-    } else {
-      Fail "WSL distro missing: $ExpectedWslDistro (installed: $($distros -join ', '))"
-      $failures++
-    }
-  } catch {
-    Fail "wsl checks failed: $($_.Exception.Message)"
-    $failures++
-  }
-} else {
-  Fail "wsl missing."
-  $failures++
-}
 
 Write-Host ""
 if ($failures -eq 0) {
