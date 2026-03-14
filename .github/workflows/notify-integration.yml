@@ -2,15 +2,25 @@ name: Notify integration
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
+      - id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: tmilkotev
+          repositories: dotw-integration
+
       - name: Dispatch to dotw-integration
         env:
-          GH_TOKEN: ${{ secrets.DOTW_INTEGRATION_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           curl -L \
             -X POST \
